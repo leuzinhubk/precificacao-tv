@@ -94,8 +94,15 @@ fig = go.Figure()
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Lucro Líquido"], name="Lucro Líquido", marker_color="green"))
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Custo Total"], name="Custo Total", marker_color="red"))
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Valor Venda"], name="Valor Venda", marker_color="blue", opacity=0.6))
-fig.update_layout(title="Comparativo Valor Venda × Custo Total × Lucro", barmode="group", xaxis_title="Peça", yaxis_title="R$ (Reais)")
-st.plotly_chart(fig, use_container_width=True)
+fig.update_layout(
+    title="Comparativo Valor Venda × Custo Total × Lucro",
+    barmode="group",
+    xaxis_title="Peça",
+    yaxis_title="R$ (Reais)",
+    width=800,  # largura do gráfico
+    height=400  # altura do gráfico
+)
+st.plotly_chart(fig, use_container_width=False)
 
 # ---------- Export Excel ----------
 st.header("7️⃣ Exportar relatório Excel")
@@ -130,3 +137,4 @@ df_hist_all = pd.read_csv(HIST_FILE)
 st.dataframe(df_hist_all, use_container_width=True)
 
 st.markdown("<div style='color:gray; font-size:12px;'>Video e Cia · Super Mega Ultra Extrema 3000 Plus — ferramenta interna.</div>", unsafe_allow_html=True)
+
