@@ -17,7 +17,7 @@ if not os.path.exists(HIST_FILE):
     pd.DataFrame(columns=["Data","TV","Peça","Valor Venda","Frete","Custo Adicional","Comissão","Imposto","Custo Total","Lucro Líquido","Markup"]).to_csv(HIST_FILE, index=False)
 
 # ---------- Cabeçalho ----------
-st.title(f"📺 {COMPANY_NAME} — Precificação Profissional Ultra Limpa")
+st.title(f"📺 {COMPANY_NAME} — Precificação Profissional Limpa")
 
 # ---------- Entradas ----------
 st.header("1️⃣ Valores das peças")
@@ -35,25 +35,16 @@ pecas_lista = [
 valores = []
 fretes = []
 
-st.markdown("### Peças e valores")
 for nome in pecas_lista:
-    with st.container():
-        st.markdown(
-            f"""
-            <div style="display:flex; justify-content:space-between; align-items:center;
-                        border:1px solid #ccc; padding:8px; margin-bottom:4px; border-radius:5px;">
-                <div style="flex:2"><b>{nome}</b></div>
-                <div style="flex:1">
-                    R$ <input type='number' id='{nome}_valor' value='0' style='width:80px'>
-                </div>
-                <div style="flex:1">
-                    R$ <input type='number' id='{nome}_frete' value='0' style='width:80px'>
-                </div>
-            </div>
-            """, unsafe_allow_html=True
-        )
-    valores.append(st.number_input(f"Valor venda {nome} (R$)", min_value=0.0, value=0.0, key=f"vp_{nome}"))
-    fretes.append(st.number_input(f"Frete {nome} (R$)", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}"))
+    col1, col2, col3 = st.columns([3,2,2])
+    with col1:
+        st.write(f"**{nome}**")
+    with col2:
+        valor = st.number_input(f"Valor venda {nome} (R$)", min_value=0.0, value=0.0, key=f"vp_{nome}")
+    with col3:
+        frete = st.number_input(f"Frete {nome} (R$)", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
+    valores.append(valor)
+    fretes.append(frete)
 
 # ---------- Custos adicionais ----------
 st.header("2️⃣ Custos adicionais")
