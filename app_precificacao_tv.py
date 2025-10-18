@@ -17,7 +17,7 @@ if not os.path.exists(HIST_FILE):
     pd.DataFrame(columns=["Data","TV","Peça","Valor Venda","Frete","Custo Adicional","Comissão","Imposto","Custo Total","Lucro Líquido","Markup"]).to_csv(HIST_FILE, index=False)
 
 # ---------- Cabeçalho ----------
-st.markdown(f"<h1 style='color:#1E90FF;'>📺 {COMPANY_NAME} — Precificação Ultra Premium</h1><hr>", unsafe_allow_html=True)
+st.title(f"📺 {COMPANY_NAME} — Precificação Profissional")
 
 # ---------- Entradas ----------
 st.header("1️⃣ Valores das peças")
@@ -31,24 +31,15 @@ pecas_lista = [
     "Barras de LED"
 ]
 
-# Função para criar mini-card de peça
-def mini_card(nome, valor_default):
-    st.markdown(
-        f"""
-        <div style='display:flex; justify-content:space-between; align-items:center; 
-                    padding:10px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background-color:#f9f9f9;'>
-            <span style='font-weight:bold;'>{nome}</span>
-            <span>R$ <input type='number' value='{valor_default}' step='0.01' style='width:100px;' /></span>
-        </div>
-        """, unsafe_allow_html=True)
-    # Como o Streamlit não captura diretamente input html, vamos usar number_input do Streamlit:
-    return st.number_input(f"💰 Valor venda — {nome} (R$)", min_value=0.0, value=valor_default, key=f"vp_{nome}")
-
-# Coletando valores
+# Inputs simples, linha por linha
 valores = []
 for nome in pecas_lista:
-    val = mini_card(nome, 0.0 if nome=="Barras de LED" else 100.0)
-    valores.append(val)
+    col1, col2 = st.columns([3,1])
+    with col1:
+        st.write(nome)
+    with col2:
+        vp = st.number_input(f"Valor venda {nome} (R$)", min_value=0.0, value=0.0, key=f"vp_{nome}")
+    valores.append(vp)
 
 # ---------- Custos adicionais ----------
 st.header("2️⃣ Custos adicionais")
@@ -58,15 +49,19 @@ cad_total = st.number_input("Custo adicional total (R$)", min_value=0.0, value=0
 st.header("3️⃣ Fretes das peças")
 fretes = []
 for nome in pecas_lista:
-    frete = st.number_input(f"Frete da {nome} (R$)", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
+    col1, col2 = st.columns([3,1])
+    with col1:
+        st.write(f"Frete da {nome}")
+    with col2:
+        frete = st.number_input(f"R$ frete {nome}", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
     fretes.append(frete)
 
 # ---------- Taxas ----------
 st.header("4️⃣ Taxas (%)")
-colp1, colp2 = st.columns(2)
-with colp1:
+col1, col2 = st.columns(2)
+with col1:
     comissao_pct = st.number_input("Comissão MercadoLivre (%)", min_value=0.0, max_value=100.0, value=18.0)/100
-with colp2:
+with col2:
     nota_pct = st.number_input("Nota/Imposto (%)", min_value=0.0, max_value=100.0, value=10.0)/100
 
 # ---------- Cálculos ----------
@@ -75,8 +70,7 @@ df = pd.DataFrame({
     "Valor Venda": valores,
     "Frete": fretes,
 })
-
-df["Custo Adicional"] = cad_total / len(df)  # divide igualmente entre as peças
+df["Custo Adicional"] = cad_total / len(df)
 df["Comissão"] = (df["Valor Venda"]*comissao_pct).round(2)
 df["Imposto"] = (df["Valor Venda"]*nota_pct).round(2)
 df["Custo Total"] = (df["Frete"] + df["Comissão"] + df["Imposto"] + df["Custo Adicional"]).round(2)
@@ -99,12 +93,6 @@ col_r1.metric("Lucro líquido total (R$)", f"{lucro_total:,.2f}")
 col_r2.metric("Valor máximo p/ pagar TV (R$)", f"{valor_max_tv:,.2f}")
 col_r3.metric("Lucro real após pagar TV (R$)", f"{lucro_real:,.2f}")
 
-# Alertas visuais
-if valor_max_tv > 50:
-    st.warning("⚠️ Cuidado: valor máximo para a TV está alto!")
-if lucro_total < 0:
-    st.error("❌ Lucro líquido negativo!")
-
 # ---------- Gráfico compacto ----------
 st.header("7️⃣ Gráficos interativos")
 fig = go.Figure()
@@ -116,7 +104,7 @@ fig.update_layout(
     barmode="group",
     xaxis_title="Peça",
     yaxis_title="R$ (Reais)",
-    width=800,
+    width=700,
     height=400
 )
 st.plotly_chart(fig, use_container_width=False)
@@ -152,4 +140,4 @@ if st.button("Salvar orçamento"):
 df_hist_all = pd.read_csv(HIST_FILE)
 st.dataframe(df_hist_all, use_container_width=True)
 
-st.markdown("<div style='color:gray; font-size:12px;'>Video e Cia · Ultra Premium — ferramenta interna.</div>", unsafe_allow_html=True)
+st.markdown("<div style='color:gray; font-size:12px;'>Video e Cia · Profissional — ferramenta interna.</div>", unsafe_allow_html=True)
