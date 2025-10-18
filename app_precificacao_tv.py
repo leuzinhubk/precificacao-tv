@@ -31,33 +31,36 @@ pecas_lista = [
     "Barras de LED"
 ]
 
-# Inputs inline com nome e valor bem próximos
+# Valores de venda e fretes
 valores = []
+fretes = []
+
+st.markdown("### Peças e valores")
 for nome in pecas_lista:
-    col1, col2 = st.columns([2,1])
-    with col1:
-        st.markdown(f"**{nome}**")
-    with col2:
-        vp = st.number_input(f"R$ {nome}", min_value=0.0, value=0.0, key=f"vp_{nome}")
-    valores.append(vp)
+    with st.container():
+        st.markdown(
+            f"""
+            <div style="display:flex; justify-content:space-between; align-items:center;
+                        border:1px solid #ccc; padding:8px; margin-bottom:4px; border-radius:5px;">
+                <div style="flex:2"><b>{nome}</b></div>
+                <div style="flex:1">
+                    R$ <input type='number' id='{nome}_valor' value='0' style='width:80px'>
+                </div>
+                <div style="flex:1">
+                    R$ <input type='number' id='{nome}_frete' value='0' style='width:80px'>
+                </div>
+            </div>
+            """, unsafe_allow_html=True
+        )
+    valores.append(st.number_input(f"Valor venda {nome} (R$)", min_value=0.0, value=0.0, key=f"vp_{nome}"))
+    fretes.append(st.number_input(f"Frete {nome} (R$)", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}"))
 
 # ---------- Custos adicionais ----------
 st.header("2️⃣ Custos adicionais")
 cad_total = st.number_input("Custo adicional total (R$)", min_value=0.0, value=0.0)
 
-# ---------- Fretes ----------
-st.header("3️⃣ Fretes das peças")
-fretes = []
-for nome in pecas_lista:
-    col1, col2 = st.columns([2,1])
-    with col1:
-        st.markdown(f"Frete da **{nome}**")
-    with col2:
-        frete = st.number_input(f"R$ frete {nome}", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
-    fretes.append(frete)
-
 # ---------- Taxas ----------
-st.header("4️⃣ Taxas (%)")
+st.header("3️⃣ Taxas (%)")
 col1, col2 = st.columns(2)
 with col1:
     comissao_pct = st.number_input("Comissão MercadoLivre (%)", min_value=0.0, max_value=100.0, value=18.0)/100
@@ -83,18 +86,18 @@ valor_max_tv = round(lucro_total*(1-MARGEM_SEG),2)
 lucro_real = round(lucro_total - valor_max_tv,2)
 
 # ---------- Mostrar tabela ----------
-st.header("5️⃣ Resultados por peça")
+st.header("4️⃣ Resultados por peça")
 st.dataframe(df, use_container_width=True)
 
 # ---------- Resumo ----------
-st.header("6️⃣ Resumo")
+st.header("5️⃣ Resumo")
 col_r1,col_r2,col_r3 = st.columns(3)
 col_r1.metric("Lucro líquido total (R$)", f"{lucro_total:,.2f}")
 col_r2.metric("Valor máximo p/ pagar TV (R$)", f"{valor_max_tv:,.2f}")
 col_r3.metric("Lucro real após pagar TV (R$)", f"{lucro_real:,.2f}")
 
 # ---------- Gráfico compacto ----------
-st.header("7️⃣ Gráficos interativos")
+st.header("6️⃣ Gráficos interativos")
 fig = go.Figure()
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Lucro Líquido"], name="Lucro Líquido", marker_color="green"))
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Custo Total"], name="Custo Total", marker_color="red"))
@@ -110,7 +113,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=False)
 
 # ---------- Exportar Excel ----------
-st.header("8️⃣ Exportar relatório Excel")
+st.header("7️⃣ Exportar relatório Excel")
 def to_excel_bytes(df_table):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -129,7 +132,7 @@ excel_data = to_excel_bytes(df)
 st.download_button("📥 Baixar relatório Excel", excel_data, file_name="precificacao_videoecia.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 # ---------- Histórico persistente ----------
-st.header("9️⃣ Histórico de orçamentos")
+st.header("8️⃣ Histórico de orçamentos")
 if st.button("Salvar orçamento"):
     df_hist = df.copy()
     df_hist.insert(0,"Data",datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
