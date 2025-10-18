@@ -23,41 +23,32 @@ st.markdown(f"<h1 style='color:#1E90FF;'>📺 {COMPANY_NAME} — Precificação 
 st.header("1️⃣ Valores das peças")
 tv_nome = st.text_input("Nome/Modelo da TV", "TV Quebrada Exemplo")
 
-# --- Placa Principal ---
-with st.expander("Placa Principal"):
-    col1, col2 = st.columns([2,1])
+# Função para criar linha de peça
+def linha_peca(nome, valor_default, frete_default, custo_default):
+    col1, col2 = st.columns([3,1])
     with col1:
-        fr_plc = st.number_input("Frete — Placa Principal (R$)", min_value=0.0, value=25.0)
-        cad_plc = st.number_input("Custo adicional — Placa Principal (R$)", min_value=0.0, value=0.0)
+        st.text(f"{nome}")
+        frete = st.number_input(f"Frete — {nome} (R$)", min_value=0.0, value=frete_default, key=f"frete_{nome}")
+        custo = st.number_input(f"Custo adicional — {nome} (R$)", min_value=0.0, value=custo_default, key=f"cad_{nome}")
     with col2:
-        vp_plc = st.number_input("💰 Valor venda — Placa Principal (R$)", min_value=0.0, value=150.0)
+        vp = st.number_input(f"💰 Valor venda — {nome} (R$)", min_value=0.0, value=valor_default, key=f"vp_{nome}")
+    return vp, frete, custo
 
-# --- Placa Fonte ---
-with st.expander("Placa Fonte"):
-    col1, col2 = st.columns([2,1])
-    with col1:
-        fr_font = st.number_input("Frete — Placa Fonte (R$)", min_value=0.0, value=20.0)
-        cad_font = st.number_input("Custo adicional — Placa Fonte (R$)", min_value=0.0, value=0.0)
-    with col2:
-        vp_font = st.number_input("💰 Valor venda — Placa Fonte (R$)", min_value=0.0, value=100.0)
+# Lista de peças
+pecas_lista = [
+    ("Placa Principal", 150.0, 25.0, 0.0),
+    ("Placa Fonte", 100.0, 20.0, 0.0),
+    ("Placa T-CON", 40.0, 15.0, 0.0),
+    ("Barras de LED", 0.0, 25.0, 0.0)
+]
 
-# --- Placa T-CON ---
-with st.expander("Placa T-CON"):
-    col1, col2 = st.columns([2,1])
-    with col1:
-        fr_tcon = st.number_input("Frete — Placa T-CON (R$)", min_value=0.0, value=15.0)
-        cad_tcon = st.number_input("Custo adicional — Placa T-CON (R$)", min_value=0.0, value=0.0)
-    with col2:
-        vp_tcon = st.number_input("💰 Valor venda — Placa T-CON (R$)", min_value=0.0, value=40.0)
-
-# --- Barras de LED ---
-with st.expander("Barras de LED"):
-    col1, col2 = st.columns([2,1])
-    with col1:
-        fr_led = st.number_input("Frete — Barras de LED (R$)", min_value=0.0, value=25.0)
-        cad_led = st.number_input("Custo adicional — Barras de LED (R$)", min_value=0.0, value=0.0)
-    with col2:
-        vp_led = st.number_input("💰 Valor venda — Barras de LED (R$)", min_value=0.0, value=0.0)
+# Coletando valores
+valores, fretes, custos_ad = [], [], []
+for nome, val_default, fr_default, cad_default in pecas_lista:
+    vp, fr, cad = linha_peca(nome, val_default, fr_default, cad_default)
+    valores.append(vp)
+    fretes.append(fr)
+    custos_ad.append(cad)
 
 # ---------- Taxas ----------
 st.header("2️⃣ Taxas (%)")
@@ -68,10 +59,7 @@ with colp2:
     nota_pct = st.number_input("Nota/Imposto (%)", min_value=0.0, max_value=100.0, value=10.0)/100
 
 # ---------- Cálculos ----------
-pecas = ["Placa Principal","Placa Fonte","Placa T-CON","Barras de LED"]
-valores = [vp_plc,vp_font,vp_tcon,vp_led]
-fretes = [fr_plc,fr_font,fr_tcon,fr_led]
-custos_ad = [cad_plc,cad_font,cad_tcon,cad_led]
+pecas = [x[0] for x in pecas_lista]
 
 df = pd.DataFrame({
     "Peça": pecas,
