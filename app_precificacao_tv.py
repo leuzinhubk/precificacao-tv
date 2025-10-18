@@ -17,7 +17,7 @@ if not os.path.exists(HIST_FILE):
     pd.DataFrame(columns=["Data","TV","Peça","Valor Venda","Frete","Custo Adicional","Comissão","Imposto","Custo Total","Lucro Líquido","Markup"]).to_csv(HIST_FILE, index=False)
 
 # ---------- Cabeçalho ----------
-st.title(f"📺 {COMPANY_NAME} — Precificação Profissional")
+st.title(f"📺 {COMPANY_NAME} — Precificação Profissional Ultra Limpa")
 
 # ---------- Entradas ----------
 st.header("1️⃣ Valores das peças")
@@ -31,14 +31,14 @@ pecas_lista = [
     "Barras de LED"
 ]
 
-# Inputs simples, linha por linha
+# Inputs inline com nome e valor bem próximos
 valores = []
 for nome in pecas_lista:
-    col1, col2 = st.columns([3,1])
+    col1, col2 = st.columns([2,1])
     with col1:
-        st.write(nome)
+        st.markdown(f"**{nome}**")
     with col2:
-        vp = st.number_input(f"Valor venda {nome} (R$)", min_value=0.0, value=0.0, key=f"vp_{nome}")
+        vp = st.number_input(f"R$ {nome}", min_value=0.0, value=0.0, key=f"vp_{nome}")
     valores.append(vp)
 
 # ---------- Custos adicionais ----------
@@ -49,9 +49,9 @@ cad_total = st.number_input("Custo adicional total (R$)", min_value=0.0, value=0
 st.header("3️⃣ Fretes das peças")
 fretes = []
 for nome in pecas_lista:
-    col1, col2 = st.columns([3,1])
+    col1, col2 = st.columns([2,1])
     with col1:
-        st.write(f"Frete da {nome}")
+        st.markdown(f"Frete da **{nome}**")
     with col2:
         frete = st.number_input(f"R$ frete {nome}", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
     fretes.append(frete)
