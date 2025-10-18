@@ -23,35 +23,44 @@ st.markdown(f"<h1 style='color:#1E90FF;'>📺 {COMPANY_NAME} — Precificação 
 st.header("1️⃣ Valores das peças")
 tv_nome = st.text_input("Nome/Modelo da TV", "TV Quebrada Exemplo")
 
-# Função para criar linha de peça
-def linha_peca(nome, valor_default, frete_default, custo_default):
+# Função para linha de peça apenas com valor de venda
+def linha_peca(nome, valor_default):
     col1, col2 = st.columns([3,1])
     with col1:
         st.text(f"{nome}")
-        frete = st.number_input(f"Frete — {nome} (R$)", min_value=0.0, value=frete_default, key=f"frete_{nome}")
-        custo = st.number_input(f"Custo adicional — {nome} (R$)", min_value=0.0, value=custo_default, key=f"cad_{nome}")
     with col2:
         vp = st.number_input(f"💰 Valor venda — {nome} (R$)", min_value=0.0, value=valor_default, key=f"vp_{nome}")
-    return vp, frete, custo
+    return vp
 
 # Lista de peças
 pecas_lista = [
-    ("Placa Principal", 150.0, 25.0, 0.0),
-    ("Placa Fonte", 100.0, 20.0, 0.0),
-    ("Placa T-CON", 40.0, 15.0, 0.0),
-    ("Barras de LED", 0.0, 25.0, 0.0)
+    ("Placa Principal", 150.0),
+    ("Placa Fonte", 100.0),
+    ("Placa T-CON", 40.0),
+    ("Barras de LED", 0.0)
 ]
 
 # Coletando valores
-valores, fretes, custos_ad = [], [], []
-for nome, val_default, fr_default, cad_default in pecas_lista:
-    vp, fr, cad = linha_peca(nome, val_default, fr_default, cad_default)
+valores = []
+for nome, val_default in pecas_lista:
+    vp = linha_peca(nome, val_default)
     valores.append(vp)
-    fretes.append(fr)
-    custos_ad.append(cad)
+
+# ---------- Custos adicionais ----------
+st.header("2️⃣ Custos adicionais")
+cad_total = st.number_input("Custo adicional total (R$)", min_value=0.0, value=0.0)
+
+# ---------- Fretes ----------
+st.header("3️⃣ Fretes das peças")
+frete_plc = st.number_input("Frete da Placa Principal (R$)", min_value=0.0, value=25.0)
+frete_font = st.number_input("Frete da Placa Fonte (R$)", min_value=0.0, value=20.0)
+frete_tcon = st.number_input("Frete da Placa T-CON (R$)", min_value=0.0, value=15.0)
+frete_led = st.number_input("Frete da Barras de LED (R$)", min_value=0.0, value=25.0)
+
+fretes = [frete_plc, frete_font, frete_tcon, frete_led]
 
 # ---------- Taxas ----------
-st.header("2️⃣ Taxas (%)")
+st.header("4️⃣ Taxas (%)")
 colp1, colp2 = st.columns(2)
 with colp1:
     comissao_pct = st.number_input("Comissão MercadoLivre (%)", min_value=0.0, max_value=100.0, value=18.0)/100
@@ -65,8 +74,10 @@ df = pd.DataFrame({
     "Peça": pecas,
     "Valor Venda": valores,
     "Frete": fretes,
-    "Custo Adicional": custos_ad
 })
+
+# Adiciona Custo adicional igual para todas as peças
+df["Custo Adicional"] = cad_total / len(df)  # divide igualmente entre as peças
 
 df["Comissão"] = (df["Valor Venda"]*comissao_pct).round(2)
 df["Imposto"] = (df["Valor Venda"]*nota_pct).round(2)
@@ -80,11 +91,11 @@ valor_max_tv = round(lucro_total*(1-MARGEM_SEG),2)
 lucro_real = round(lucro_total - valor_max_tv,2)
 
 # ---------- Mostrar tabela ----------
-st.header("3️⃣ Resultados por peça")
+st.header("5️⃣ Resultados por peça")
 st.dataframe(df, use_container_width=True)
 
 # ---------- Resumo ----------
-st.header("4️⃣ Resumo")
+st.header("6️⃣ Resumo")
 col_r1,col_r2,col_r3 = st.columns(3)
 col_r1.metric("Lucro líquido total (R$)", f"{lucro_total:,.2f}")
 col_r2.metric("Valor máximo p/ pagar TV (R$)", f"{valor_max_tv:,.2f}")
@@ -97,7 +108,7 @@ if lucro_total < 0:
     st.error("❌ Lucro líquido negativo!")
 
 # ---------- Gráfico compacto ----------
-st.header("5️⃣ Gráficos interativos")
+st.header("7️⃣ Gráficos interativos")
 fig = go.Figure()
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Lucro Líquido"], name="Lucro Líquido", marker_color="green"))
 fig.add_trace(go.Bar(x=df["Peça"], y=df["Custo Total"], name="Custo Total", marker_color="red"))
@@ -113,7 +124,7 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=False)
 
 # ---------- Exportar Excel ----------
-st.header("6️⃣ Exportar relatório Excel")
+st.header("8️⃣ Exportar relatório Excel")
 def to_excel_bytes(df_table):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -123,17 +134,16 @@ def to_excel_bytes(df_table):
         money_fmt = workbook.add_format({'num_format':'R$#,##0.00'})
         worksheet.set_column('B:B',18,money_fmt)
         worksheet.set_column('C:C',12,money_fmt)
-        worksheet.set_column('D:D',18,money_fmt)
+        worksheet.set_column('D:D',12,money_fmt)
         worksheet.set_column('E:E',12,money_fmt)
-        worksheet.set_column('F:F',12,money_fmt)
-        worksheet.set_column('G:G',16,money_fmt)
+        worksheet.set_column('F:F',16,money_fmt)
     return output.getvalue()
 
 excel_data = to_excel_bytes(df)
 st.download_button("📥 Baixar relatório Excel", excel_data, file_name="precificacao_videoecia.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 # ---------- Histórico persistente ----------
-st.header("7️⃣ Histórico de orçamentos")
+st.header("9️⃣ Histórico de orçamentos")
 if st.button("Salvar orçamento"):
     df_hist = df.copy()
     df_hist.insert(0,"Data",datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
