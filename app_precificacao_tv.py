@@ -27,37 +27,37 @@ tv_nome = st.text_input("Nome/Modelo da TV", "TV Quebrada Exemplo")
 with st.expander("Placa Principal"):
     col1, col2 = st.columns([2,1])
     with col1:
-        fr_plc = st.number_input("Frete (R$)", min_value=0.0, value=25.0)
-        cad_plc = st.number_input("Custo adicional (R$)", min_value=0.0, value=0.0)
+        fr_plc = st.number_input("Frete — Placa Principal (R$)", min_value=0.0, value=25.0)
+        cad_plc = st.number_input("Custo adicional — Placa Principal (R$)", min_value=0.0, value=0.0)
     with col2:
-        vp_plc = st.number_input("💰 Valor venda (R$)", min_value=0.0, value=150.0)
+        vp_plc = st.number_input("💰 Valor venda — Placa Principal (R$)", min_value=0.0, value=150.0)
 
 # --- Placa Fonte ---
 with st.expander("Placa Fonte"):
     col1, col2 = st.columns([2,1])
     with col1:
-        fr_font = st.number_input("Frete (R$)", min_value=0.0, value=20.0)
-        cad_font = st.number_input("Custo adicional (R$)", min_value=0.0, value=0.0)
+        fr_font = st.number_input("Frete — Placa Fonte (R$)", min_value=0.0, value=20.0)
+        cad_font = st.number_input("Custo adicional — Placa Fonte (R$)", min_value=0.0, value=0.0)
     with col2:
-        vp_font = st.number_input("💰 Valor venda (R$)", min_value=0.0, value=100.0)
+        vp_font = st.number_input("💰 Valor venda — Placa Fonte (R$)", min_value=0.0, value=100.0)
 
 # --- Placa T-CON ---
 with st.expander("Placa T-CON"):
     col1, col2 = st.columns([2,1])
     with col1:
-        fr_tcon = st.number_input("Frete (R$)", min_value=0.0, value=15.0)
-        cad_tcon = st.number_input("Custo adicional (R$)", min_value=0.0, value=0.0)
+        fr_tcon = st.number_input("Frete — Placa T-CON (R$)", min_value=0.0, value=15.0)
+        cad_tcon = st.number_input("Custo adicional — Placa T-CON (R$)", min_value=0.0, value=0.0)
     with col2:
-        vp_tcon = st.number_input("💰 Valor venda (R$)", min_value=0.0, value=40.0)
+        vp_tcon = st.number_input("💰 Valor venda — Placa T-CON (R$)", min_value=0.0, value=40.0)
 
 # --- Barras de LED ---
 with st.expander("Barras de LED"):
     col1, col2 = st.columns([2,1])
     with col1:
-        fr_led = st.number_input("Frete (R$)", min_value=0.0, value=25.0)
-        cad_led = st.number_input("Custo adicional (R$)", min_value=0.0, value=0.0)
+        fr_led = st.number_input("Frete — Barras de LED (R$)", min_value=0.0, value=25.0)
+        cad_led = st.number_input("Custo adicional — Barras de LED (R$)", min_value=0.0, value=0.0)
     with col2:
-        vp_led = st.number_input("💰 Valor venda (R$)", min_value=0.0, value=0.0)
+        vp_led = st.number_input("💰 Valor venda — Barras de LED (R$)", min_value=0.0, value=0.0)
 
 # ---------- Taxas ----------
 st.header("2️⃣ Taxas (%)")
