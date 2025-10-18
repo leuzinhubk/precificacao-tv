@@ -17,34 +17,38 @@ if not os.path.exists(HIST_FILE):
     pd.DataFrame(columns=["Data","TV","Peça","Valor Venda","Frete","Custo Adicional","Comissão","Imposto","Custo Total","Lucro Líquido","Markup"]).to_csv(HIST_FILE, index=False)
 
 # ---------- Cabeçalho ----------
-st.markdown(f"<h1 style='color:#1E90FF;'>📺 {COMPANY_NAME} — Precificação Super Premium</h1><hr>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='color:#1E90FF;'>📺 {COMPANY_NAME} — Precificação Ultra Premium</h1><hr>", unsafe_allow_html=True)
 
 # ---------- Entradas ----------
 st.header("1️⃣ Valores das peças")
 tv_nome = st.text_input("Nome/Modelo da TV", "TV Quebrada Exemplo")
 
-# Função para linha de peça apenas com valor de venda
-def linha_peca(nome, valor_default):
-    col1, col2 = st.columns([3,1])
-    with col1:
-        st.text(f"{nome}")
-    with col2:
-        vp = st.number_input(f"💰 Valor venda — {nome} (R$)", min_value=0.0, value=valor_default, key=f"vp_{nome}")
-    return vp
-
 # Lista de peças
 pecas_lista = [
-    ("Placa Principal", 150.0),
-    ("Placa Fonte", 100.0),
-    ("Placa T-CON", 40.0),
-    ("Barras de LED", 0.0)
+    "Placa Principal",
+    "Placa Fonte",
+    "Placa T-CON",
+    "Barras de LED"
 ]
+
+# Função para criar mini-card de peça
+def mini_card(nome, valor_default):
+    st.markdown(
+        f"""
+        <div style='display:flex; justify-content:space-between; align-items:center; 
+                    padding:10px; margin-bottom:5px; border:1px solid #ccc; border-radius:5px; background-color:#f9f9f9;'>
+            <span style='font-weight:bold;'>{nome}</span>
+            <span>R$ <input type='number' value='{valor_default}' step='0.01' style='width:100px;' /></span>
+        </div>
+        """, unsafe_allow_html=True)
+    # Como o Streamlit não captura diretamente input html, vamos usar number_input do Streamlit:
+    return st.number_input(f"💰 Valor venda — {nome} (R$)", min_value=0.0, value=valor_default, key=f"vp_{nome}")
 
 # Coletando valores
 valores = []
-for nome, val_default in pecas_lista:
-    vp = linha_peca(nome, val_default)
-    valores.append(vp)
+for nome in pecas_lista:
+    val = mini_card(nome, 0.0 if nome=="Barras de LED" else 100.0)
+    valores.append(val)
 
 # ---------- Custos adicionais ----------
 st.header("2️⃣ Custos adicionais")
@@ -52,12 +56,10 @@ cad_total = st.number_input("Custo adicional total (R$)", min_value=0.0, value=0
 
 # ---------- Fretes ----------
 st.header("3️⃣ Fretes das peças")
-frete_plc = st.number_input("Frete da Placa Principal (R$)", min_value=0.0, value=25.0)
-frete_font = st.number_input("Frete da Placa Fonte (R$)", min_value=0.0, value=20.0)
-frete_tcon = st.number_input("Frete da Placa T-CON (R$)", min_value=0.0, value=15.0)
-frete_led = st.number_input("Frete da Barras de LED (R$)", min_value=0.0, value=25.0)
-
-fretes = [frete_plc, frete_font, frete_tcon, frete_led]
+fretes = []
+for nome in pecas_lista:
+    frete = st.number_input(f"Frete da {nome} (R$)", min_value=0.0, value=25.0 if nome in ["Placa Principal","Barras de LED"] else 20.0, key=f"frete_{nome}")
+    fretes.append(frete)
 
 # ---------- Taxas ----------
 st.header("4️⃣ Taxas (%)")
@@ -68,17 +70,13 @@ with colp2:
     nota_pct = st.number_input("Nota/Imposto (%)", min_value=0.0, max_value=100.0, value=10.0)/100
 
 # ---------- Cálculos ----------
-pecas = [x[0] for x in pecas_lista]
-
 df = pd.DataFrame({
-    "Peça": pecas,
+    "Peça": pecas_lista,
     "Valor Venda": valores,
     "Frete": fretes,
 })
 
-# Adiciona Custo adicional igual para todas as peças
 df["Custo Adicional"] = cad_total / len(df)  # divide igualmente entre as peças
-
 df["Comissão"] = (df["Valor Venda"]*comissao_pct).round(2)
 df["Imposto"] = (df["Valor Venda"]*nota_pct).round(2)
 df["Custo Total"] = (df["Frete"] + df["Comissão"] + df["Imposto"] + df["Custo Adicional"]).round(2)
@@ -154,4 +152,4 @@ if st.button("Salvar orçamento"):
 df_hist_all = pd.read_csv(HIST_FILE)
 st.dataframe(df_hist_all, use_container_width=True)
 
-st.markdown("<div style='color:gray; font-size:12px;'>Video e Cia · Super Premium — ferramenta interna.</div>", unsafe_allow_html=True)
+st.markdown("<div style='color:gray; font-size:12px;'>Video e Cia · Ultra Premium — ferramenta interna.</div>", unsafe_allow_html=True)
